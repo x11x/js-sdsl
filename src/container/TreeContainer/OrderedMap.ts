@@ -23,6 +23,9 @@ class OrderedMapIterator<K, V> extends TreeIterator<K, V> {
     const self = this;
     return new Proxy(<[K, V]><unknown>[], {
       get(target, prop: '0' | '1') {
+        if (self._node === self._header) {
+          throwIteratorAccessError();
+        }
         if (prop === '0') return self._node._key!;
         else if (prop === '1') return self._node._value!;
         target[0] = self._node._key!;
@@ -32,6 +35,9 @@ class OrderedMapIterator<K, V> extends TreeIterator<K, V> {
       set(_, prop: '1', newValue: V) {
         if (prop !== '1') {
           throw new TypeError('prop must be 1');
+        }
+        if (self._node === self._header) {
+          throwIteratorAccessError();
         }
         self._node._value = newValue;
         return true;
