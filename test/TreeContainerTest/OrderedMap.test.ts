@@ -1,5 +1,6 @@
 import { expect } from 'chai';
 import { Vector, OrderedMap } from '@/index';
+import type { OrderedMapIterator } from '@/index';
 
 const arr: number[] = [];
 const testNum = 10000;
@@ -225,6 +226,46 @@ describe('OrderedMap test', () => {
         expect(_value).to.equal(2);
       }
     }).to.not.throw(Error);
+  });
+
+  function iteratorAtLastElement<K, V>(map: OrderedMap<K, V>): OrderedMapIterator<K, V> {
+    const it = map.end();
+    it.pre();
+    expect(it.equals(map.end())).to.equal(false);
+    return it;
+  }
+
+  it('OrderedMap iterator invalid pointer test: pointer[0]', () => {
+    const it = iteratorAtLastElement(myOrderedMap);
+    const pointer = it.pointer;
+    it.next();
+    let key;
+    expect(() => {
+      key = pointer[0];
+    }).to.throw(RangeError);
+    expect(key).to.be.an('undefined');
+  });
+
+  it('OrderedMap iterator invalid pointer test: pointer[1]', () => {
+    const it = iteratorAtLastElement(myOrderedMap);
+    const pointer = it.pointer;
+    it.next();
+    let value;
+    expect(() => {
+      value = pointer[1];
+    }).to.throw(RangeError);
+    expect(value).to.be.an('undefined');
+  });
+
+  it('OrderedMap iterator invalid pointer test, [key, value] = pointer', () => {
+    const it = iteratorAtLastElement(myOrderedMap);
+    const pointer = it.pointer;
+    const [key, value] = pointer;
+    it.next();
+    expect(() => {
+      expect(pointer[0]).to.not.equal(key);
+      expect(pointer[1]).to.not.equal(value);
+    }).to.throw(RangeError);
   });
 
   it('OrderedMap clear function test', () => {
